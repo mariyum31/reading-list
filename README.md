@@ -29,6 +29,4 @@ Then open http://localhost:8000/books
 
 ## AI usage
 
-### AI Usage
-
 I used Claude for guidance while developing this project. It helped me understand Laravel concepts, troubleshoot errors, debug routes and Blade templates, and resolve issues during setup. I also used it to understand the code and make corrections. I reviewed and tested the implementation myself.
