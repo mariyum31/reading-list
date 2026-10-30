@@ -26,6 +26,16 @@
             </tbody>
         </table>
     @endif
+
+    <p class="filters">
+    <a href="{{ route('books.index') }}" class="{{ !$status ? 'active' : '' }}">All</a>
+    @foreach (\App\Models\Book::STATUSES as $value => $label)
+        <a href="{{ route('books.index', ['status' => $value]) }}"
+           class="{{ $status === $value ? 'active' : '' }}">{{ $label }}</a>
+    @endforeach
+</p>
+
+
     @if ($errors->any())
     <div class="errors">
         <ul>
