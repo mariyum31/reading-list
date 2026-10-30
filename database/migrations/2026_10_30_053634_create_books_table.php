@@ -12,9 +12,12 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('books', function (Blueprint $table) {
-            $table->id();
-            $table->timestamps();
-        });
+    $table->id();
+    $table->string('title');
+    $table->string('author');
+    $table->string('status')->default('to-read');
+    $table->timestamps();
+});
     }
 
     /**
