@@ -69,11 +69,13 @@
 </p>
 @endsection 
 
-yooo
+yoo--}}
 
 
 
 
+
+{{-- 
 @extends('layouts.app')
 
 @section('content')
@@ -114,23 +116,26 @@ yooo
     </tbody>
 </table>
 
-@endsection  --}}
+@endsection
+--}}
+
 
 @extends('layouts.app')
 
 @section('content')
-    <p><a href="{{ route('books.create') }}" class="btn">Add book</a></p>
-
-    <p class="filters">
-        <a href="{{ route('books.index') }}" class="{{ !$status ? 'active' : '' }}">All</a>
-        @foreach (\App\Models\Book::STATUSES as $value => $label)
-            <a href="{{ route('books.index', ['status' => $value]) }}"
-               class="{{ $status === $value ? 'active' : '' }}">{{ $label }}</a>
-        @endforeach
-    </p>
+    <div class="toolbar">
+        <div class="filters">
+            <a href="{{ route('books.index') }}" class="{{ !$status ? 'active' : '' }}">All</a>
+            @foreach (\App\Models\Book::STATUSES as $value => $label)
+                <a href="{{ route('books.index', ['status' => $value]) }}"
+                   class="{{ $status === $value ? 'active' : '' }}">{{ $label }}</a>
+            @endforeach
+        </div>
+        <a href="{{ route('books.create') }}" class="btn">+ Add book</a>
+    </div>
 
     @if ($books->isEmpty())
-        <p>No books yet.</p>
+        <p class="empty">No books yet. Add your first one!</p>
     @else
         <table>
             <thead>
@@ -139,17 +144,23 @@ yooo
             <tbody>
                 @foreach ($books as $book)
                     <tr>
-                        <td>{{ $book->title }}</td>
+                        <td class="book-title">{{ $book->title }}</td>
                         <td>{{ $book->author }}</td>
-                        <td>{{ \App\Models\Book::STATUSES[$book->status] ?? $book->status }}</td>
                         <td>
-                            <a href="{{ route('books.edit', $book) }}">Edit</a>
-                            <form method="POST" action="{{ route('books.destroy', $book) }}" class="inline"
-                                  onsubmit="return confirm('Are you sure?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn">Delete</button>
-                            </form>
+                            <span class="badge badge-{{ $book->status }}">
+                                {{ \App\Models\Book::STATUSES[$book->status] ?? $book->status }}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="actions">
+                                <a href="{{ route('books.edit', $book) }}" class="btn btn-sm btn-light">Edit</a>
+                                <form method="POST" action="{{ route('books.destroy', $book) }}" class="inline"
+                                      onsubmit="return confirm('Are you sure?')">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 @endforeach
