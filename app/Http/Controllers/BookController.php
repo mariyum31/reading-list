@@ -37,3 +37,15 @@ private function validated(Request $request): array
         'status' => ['required', Rule::in(array_keys(Book::STATUSES))],
     ]);
 }   
+
+public function edit(Book $book)
+{
+    return view('books.edit', compact('book'));
+}
+
+public function update(Request $request, Book $book)
+{
+    $book->update($this->validated($request));
+
+    return redirect()->route('books.index');
+}

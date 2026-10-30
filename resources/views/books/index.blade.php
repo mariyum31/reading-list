@@ -1,6 +1,7 @@
 @extends('layouts.app')
 
 @section('content')
+<td><a href="{{ route('books.edit', $book) }}">Edit</a></td>
 <p><a href="{{ route('books.create') }}" class="btn">Add book</a></p>
     @if ($books->isEmpty())
         <p>No books yet.</p>
