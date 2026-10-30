@@ -1,7 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
-<td><a href="{{ route('books.edit', $book) }}">Edit</a></td>
+<td><a href="{{ route('books.edit', $book) }}">Edit</a><form method="POST" action="{{ route('books.destroy', $book) }}" class="inline"
+      onsubmit="return confirm('Are you sure?')">
+    @csrf
+    @method('DELETE')
+    <button type="submit" class="btn">Delete</button>
+</form></td>
 <p><a href="{{ route('books.create') }}" class="btn">Add book</a></p>
     @if ($books->isEmpty())
         <p>No books yet.</p>
