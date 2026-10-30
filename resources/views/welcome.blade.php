@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>
         <meta charset="utf-8">
@@ -8,7 +8,7 @@
 
         @fonts
 
-        <!-- Styles / Scripts -->
+        
         @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
             @vite(['resources/css/app.css', 'resources/js/app.js'])
         @else
@@ -220,4 +220,304 @@
             <div class="h-14.5 hidden lg:block"></div>
         @endif
     </body>
+</html> -->
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book Management System</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f9;
+            margin: 0;
+            padding: 30px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+        }
+
+        h1, h2 {
+            color: #333;
+        }
+
+        .count-box {
+            background: #e8f0fe;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+
+        input {
+            padding: 10px;
+            margin: 5px;
+            width: 220px;
+        }
+
+        button {
+            padding: 9px 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            background: #198754;
+        }
+
+        .edit-btn {
+            background: #0d6efd;
+        }
+
+        .delete-btn {
+            background: #dc3545;
+            margin-left: 5px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+
+        th {
+            background: #333;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <h1>Book Management System</h1>
+
+    <div class="count-box">
+        <h2>Total Books: <span id="totalBooks">0</span></h2>
+    </div>
+
+    <h2>Add New Book</h2>
+
+    <form id="bookForm">
+        <input type="text" id="title" placeholder="Enter Book Title" required>
+        <input type="text" id="author" placeholder="Enter Author Name" required>
+        <button type="submit">Add Book</button>
+    </form>
+
+    <h2>All Books</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Book Title</th>
+                <th>Author</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody id="bookTable">
+            <tr>
+                <td colspan="4">Loading books...</td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<script>
+    // Display all books
+    async function loadBooks() {
+        const table = document.getElementById('bookTable');
+
+        try {
+            const response = await fetch('/api/books');
+            if (!response.ok) {
+                throw new Error('Unable to load books');
+            }
+
+            const data = await response.json();
+
+            document.getElementById('totalBooks').textContent =
+                data.total_books ?? data.books.length;
+
+            table.innerHTML = '';
+
+            if (data.books.length === 0) {
+                table.innerHTML =
+                    '<tr><td colspan="4">No books found.</td></tr>';
+                return;
+            }
+
+            data.books.forEach(book => {
+                const row = document.createElement('tr');
+
+                const idCell = document.createElement('td');
+                idCell.textContent = book.id;
+
+                const titleCell = document.createElement('td');
+                titleCell.textContent = book.title;
+
+                const authorCell = document.createElement('td');
+                authorCell.textContent = book.author;
+
+                const actionCell = document.createElement('td');
+
+                // Edit button
+                const editButton = document.createElement('button');
+                editButton.textContent = 'Edit';
+                editButton.className = 'edit-btn';
+                editButton.onclick = () => editBook(book);
+
+                // Delete button
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.className = 'delete-btn';
+                deleteButton.onclick = () => deleteBook(book);
+
+                actionCell.appendChild(editButton);
+                actionCell.appendChild(deleteButton);
+
+                row.appendChild(idCell);
+                row.appendChild(titleCell);
+                row.appendChild(authorCell);
+                row.appendChild(actionCell);
+
+                table.appendChild(row);
+            });
+
+        } catch (error) {
+            table.innerHTML =
+                '<tr><td colspan="4">Error loading books.</td></tr>';
+            console.error(error);
+        }
+    }
+
+    // Add a new book
+    document.getElementById('bookForm').addEventListener('submit',
+        async function(event) {
+            event.preventDefault();
+
+            const title = document.getElementById('title').value.trim();
+            const author = document.getElementById('author').value.trim();
+
+            try {
+                const response = await fetch('/api/books', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ title, author })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Unable to add book');
+                }
+
+                alert('Book added successfully!');
+                document.getElementById('bookForm').reset();
+                await loadBooks();
+
+            } catch (error) {
+                alert(error.message);
+            }
+        }
+    );
+
+    // Edit an existing book
+    async function editBook(book) {
+        const newTitle = prompt('Enter new book title:', book.title);
+
+        if (newTitle === null) return;
+
+        const newAuthor = prompt('Enter new author name:', book.author);
+
+        if (newAuthor === null) return;
+
+        if (!newTitle.trim() || !newAuthor.trim()) {
+            alert('Title and author cannot be empty.');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/books/' + book.id, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    title: newTitle.trim(),
+                    author: newAuthor.trim()
+                })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Unable to update book');
+            }
+
+            alert('Book updated successfully!');
+            await loadBooks();
+
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
+    // Delete an existing book
+    async function deleteBook(book) {
+        const confirmDelete = confirm(
+            'Are you sure you want to delete "' + book.title + '"?'
+        );
+
+        if (!confirmDelete) return;
+
+        try {
+            const response = await fetch('/api/books/' + book.id, {
+                method: 'DELETE',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || 'Unable to delete book');
+            }
+
+            alert('Book deleted successfully!');
+            await loadBooks();
+
+        } catch (error) {
+            alert(error.message);
+        }
+    }
+
+    // Load books when the page opens
+    loadBooks();
+</script>
+
+</body>
 </html>
